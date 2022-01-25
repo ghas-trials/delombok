@@ -9,5 +9,6 @@ if [ ! -d "$dir" ]; then
   exit 1
 fi
 
-find "$dir" -name "*.java" -type f; while read jf; do 
-  python3 "${here}/delombok.py" "$jf" > "/home/sebastian/f"; cat "/home/sebastian/f" > "{}"' \; > output 2
+find "$dir" -name "*.java" -type f | while read jf; do
+  python3 "${here}/delombok.py" "$jf" "$jf"
+done

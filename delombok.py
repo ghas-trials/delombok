@@ -4,7 +4,7 @@ import difflib
 from pprint import pprint
 import subprocess
 import re
-import os
+from os.path import realpath, dirname, join
 
 INSERT_COST = 1
 DELETE_COST = INSERT_COST
@@ -14,7 +14,7 @@ INSERT = 1
 DELETE = 2
 MATCH = 3
 
-lombokjar = os.path.realpath(__file__)
+lombokjar = join(dirname(realpath(__file__)), 'lombok.jar')
 
 
 def lineending(s):
@@ -238,14 +238,25 @@ def merge(l1, l2):
   return l1[0:len(l1)-len(lineending(l1))] + ' ' + l2
 
 
+def writeFile(path, contents):
+  with open(path, 'w') as f:
+    print(
+      contents,
+      end='',
+      file=f
+    )
+
+
 def main():
-  with open(sys.argv[1], 'r') as f:
+  inputFile = sys.argv[1]
+  outputFile = sys.argv[2]
+  with open(inputFile, 'r') as f:
     original = f.read()
     normalizedOriginal = normalize(original, parse(original))
 
   if not re.compile('^\s*import(\s+static)?\s+lombok(\.|\s|;|$)', re.MULTILINE).search(original):
-    print(sys.argv[1] + ' does not contain lombok code!', file=sys.stderr)
-    print(original, end='')
+    print(inputFile + ' does not contain lombok code!', file=sys.stderr)
+    writeFile(outputFile, original)
     return
 
   delombokArgs = [
@@ -256,7 +267,7 @@ def main():
     '-f', 'generated:skip',
     '-f', 'generateDelombokComment:skip',
     '--print',
-    sys.argv[1]
+    inputFile
   ]
 
   print(' '.join(delombokArgs), file=sys.stderr)
@@ -268,16 +279,16 @@ def main():
   ).stdout.decode()
 
   if delomboked.strip() == '':
-    print('WARNING: Delombok returned an empty string for ' + sys.argv[1] + ' !', file=sys.stderr)
+    print('WARNING: Delombok returned an empty string for ' + inputFile + ' !', file=sys.stderr)
 
   normalizedDelomboked = normalize(delomboked, parse(delomboked))
 
-  print(
+  writeFile(
+    outputFile,
     match(
       normalizedOriginal.splitlines(keepends=True),
       normalizedDelomboked.splitlines(keepends=True)
-    ),
-    end=''
+    )
   )
 
 main()

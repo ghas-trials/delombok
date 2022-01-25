@@ -3,6 +3,11 @@ set -eu
 
 here="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 
+lombokjar="${here}/lombok.jar"
+if [ ! -f "$lombokjar" ]; then
+  curl "https://projectlombok.org/downloads/lombok.jar" -o "$lombokjar"
+fi
+
 dir="$1"
 if [ ! -d "$dir" ]; then
   echo 'Given path is not a directory!'

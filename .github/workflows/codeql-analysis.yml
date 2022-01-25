@@ -1,0 +1,38 @@
+name: "Test"
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        repository: WebGoat/WebGoat
+
+    - uses: actions/setup-java@v1
+      with:
+        java-version: '17'
+        java-package: jdk
+        architecture: x64
+
+    - name: Delombok
+      uses: zbazztian/delombok@main
+
+    - run: |
+       mvn clean install -DskipTests

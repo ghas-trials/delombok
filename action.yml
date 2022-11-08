@@ -8,5 +8,10 @@ inputs:
 runs:
   using: "composite"
   steps:
+    # Make sure Python is install
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
     - run: ${{ github.action_path }}/delombok.sh "${{ inputs.directory }}"
       shell: bash
